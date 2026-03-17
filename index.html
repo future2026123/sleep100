@@ -369,11 +369,12 @@
       </div>
     </div>
     <div class="option-group">
-      <div class="option-label">Loop</div>
+      <div class="option-label">Repeat</div>
       <div class="option-pills" id="loop-pills">
-        <button class="pill selected" data-value="1">1&times;</button>
-        <button class="pill" data-value="2">2&times;</button>
-        <button class="pill" data-value="3">3&times;</button>
+        <button class="pill selected" data-value="1">1í</button>
+        <button class="pill" data-value="3">3í</button>
+        <button class="pill" data-value="5">5í</button>
+        <button class="pill" data-value="0">ë¬´í</button>
       </div>
     </div>
     <button class="start-btn" id="start-btn">Start</button>
@@ -843,7 +844,7 @@
       if (!state.isRunning) return;
     }
     state.currentLoop++;
-    if (state.currentLoop < state.loops) runLoop();
+    if (state.loops === 0 || state.currentLoop < state.loops) runLoop();
     else endSession();
   }
 
@@ -882,4 +883,3 @@
 </script>
 </body>
 </html>
-
