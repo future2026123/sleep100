@@ -1,12 +1,51 @@
-// Self-destruct: clear all caches, claim clients, reload, and unregister
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    clients.claim()
-    .then(() => caches.keys())
-    .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
-    .then(() => self.clients.matchAll())
-    .then((cls) => cls.forEach((c) => c.navigate(c.url)))
-    .then(() => self.registration.unregister())
-  );
+const CACHE_NAME = 'sleep100-v5';
+const ASSETS = [
+    './',
+    './index.html',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png'
+];
+
+// Pre-cache core assets on install
+self.addEventListener('install', e => {
+    e.waitUntil(
+        caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    );
+    self.skipWaiting();
+});
+
+// Clean old caches
+self.addEventListener('activate', e => {
+    e.waitUntil(
+        caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        )
+    );
+    self.clients.claim();
+});
+
+// Network-first for HTML, cache-first for assets
+self.addEventListener('fetch', e => {
+    const url = new URL(e.request.url);
+    if (e.request.mode === 'navigate') {
+        e.respondWith(
+            fetch(e.request).catch(() => caches.match('./index.html'))
+        );
+    } else if (url.pathname.includes('/audio/')) {
+        // Cache audio files on first use
+        e.respondWith(
+            caches.match(e.request).then(r => r || 
+                fetch(e.request).then(resp => {
+                    const clone = resp.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                    return resp;
+                })
+            )
+        );
+    } else {
+        e.respondWith(
+            caches.match(e.request).then(r => r || fetch(e.request))
+        );
+    }
 });

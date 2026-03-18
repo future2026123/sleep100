@@ -247,6 +247,49 @@
             .main-number { letter-spacing: -4px; }
             .bottom-controls { padding: 16px 20px 12px; }
         }
+    
+
+        /* --- PAYMENT / AD / EMAIL / PWA --- */
+        .bottom-banner{position:fixed;bottom:0;left:0;right:0;height:48px;background:rgba(20,20,30,0.95);
+            display:flex;align-items:center;justify-content:center;gap:8px;z-index:900;
+            border-top:1px solid rgba(99,102,241,0.2);font-size:13px;color:rgba(255,255,255,0.7);
+            backdrop-filter:blur(8px);transition:transform .3s;}
+        .bottom-banner.hidden{transform:translateY(100%);}
+        .bottom-banner a{color:#a78bfa;text-decoration:none;font-weight:500;}
+        .bottom-banner .close-banner{position:absolute;right:12px;background:none;border:none;
+            color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;}
+
+        .ad-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;
+            display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+        .ad-popup-overlay.show{opacity:1;pointer-events:auto;}
+        .ad-popup{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(99,102,241,0.3);
+            border-radius:16px;padding:32px 28px;text-align:center;max-width:320px;width:90%;}
+        .ad-popup h3{color:#e2e8f0;font-size:18px;font-weight:400;margin:0 0 8px;}
+        .ad-popup p{color:rgba(255,255,255,0.6);font-size:14px;margin:0 0 24px;}
+        .ad-popup .btn-remove{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;
+            border-radius:10px;padding:12px 24px;font-size:15px;cursor:pointer;width:100%;margin-bottom:10px;}
+        .ad-popup .btn-later{background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;}
+
+        .email-collect{margin-top:24px;opacity:0;animation:endFadeIn 2s 1s forwards;text-align:center;}
+        .email-collect p{color:rgba(255,255,255,0.5);font-size:13px;margin:0 0 10px;}
+        .email-collect form{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+        .email-collect input{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);
+            border-radius:8px;padding:8px 14px;color:#fff;font-size:14px;width:200px;outline:none;}
+        .email-collect input:focus{border-color:rgba(99,102,241,0.5);}
+        .email-collect button{background:rgba(99,102,241,0.3);border:1px solid rgba(99,102,241,0.4);
+            border-radius:8px;padding:8px 16px;color:#fff;font-size:13px;cursor:pointer;}
+        .email-collect .email-ok{color:#a78bfa;font-size:13px;display:none;}
+
+        .pwa-prompt{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+            background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(99,102,241,0.3);
+            border-radius:12px;padding:16px 20px;text-align:center;z-index:950;max-width:300px;
+            opacity:0;pointer-events:none;transition:opacity .3s;}
+        .pwa-prompt.show{opacity:1;pointer-events:auto;}
+        .pwa-prompt p{color:rgba(255,255,255,0.7);font-size:13px;margin:0 0 12px;}
+        .pwa-prompt button{background:rgba(99,102,241,0.4);border:none;border-radius:8px;
+            padding:8px 20px;color:#fff;font-size:13px;cursor:pointer;margin:0 4px;}
+        .pwa-prompt .btn-dismiss{background:none;color:rgba(255,255,255,0.3);}
+
     </style>
     <script>
         // Belt-and-suspenders: inline SW/cache cleanup for returning users
@@ -258,6 +301,92 @@
                 keys.forEach(function(k) { caches.delete(k); });
             });
         }
+    
+
+    // ===== PAYMENT + ADS + EMAIL + PWA =====
+    // Lemon Squeezy checkout URL (REPLACE with actual product URL)
+    window._checkoutUrl = 'https://systemlab.lemonsqueezy.com/checkout/buy/sleep100-adfree';
+
+    // Payment: check ?paid=true redirect
+    (function initPayment() {
+        var p = new URLSearchParams(window.location.search);
+        if (p.get('paid') === 'true') {
+            localStorage.setItem('paid', 'true');
+            state.paid = true;
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    })();
+
+    // Ads: hide if paid
+    function updateAdVisibility() {
+        var banner = document.getElementById('bottom-banner');
+        var popup = document.getElementById('ad-popup');
+        if (state.paid) {
+            if (banner) banner.classList.add('hidden');
+            if (popup) popup.classList.remove('show');
+        }
+    }
+    updateAdVisibility();
+
+    // Ads: show popup every 3 uses
+    function trackUseAndShowAd() {
+        if (state.paid) return;
+        var n = parseInt(localStorage.getItem('useCount') || '0') + 1;
+        localStorage.setItem('useCount', String(n));
+        if (n % 3 === 0) {
+            setTimeout(function() {
+                if (!state.paid) document.getElementById('ad-popup').classList.add('show');
+            }, 1500);
+        }
+    }
+
+    // Email submission
+    function submitEmail(e) {
+        e.preventDefault();
+        var email = document.getElementById('email-input').value;
+        var GAS_URL = 'https://script.google.com/macros/s/REPLACE_WITH_YOUR_GAS_ID/exec';
+        fetch(GAS_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: {'Content-Type':'application/x-www-form-urlencoded'},
+            body: 'email=' + encodeURIComponent(email) + '&app=sleep100'
+        }).catch(function(){});
+        document.getElementById('email-form').style.display = 'none';
+        document.getElementById('email-ok').style.display = 'block';
+        return false;
+    }
+
+    // PWA
+    var _deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        _deferredPrompt = e;
+    });
+    function installPWA() {
+        if (_deferredPrompt) {
+            _deferredPrompt.prompt();
+            _deferredPrompt.userChoice.then(function() { _deferredPrompt = null; });
+        } else {
+            alert('To install: tap Share > Add to Home Screen');
+        }
+        document.getElementById('pwa-prompt').classList.remove('show');
+        localStorage.setItem('pwaDismissed', 'true');
+    }
+    function dismissPWA() {
+        document.getElementById('pwa-prompt').classList.remove('show');
+        localStorage.setItem('pwaDismissed', 'true');
+    }
+    function maybeShowPWA() {
+        if (localStorage.getItem('pwaDismissed') === 'true') return;
+        if (window.matchMedia('(display-mode: standalone)').matches) return;
+        var n = parseInt(localStorage.getItem('useCount') || '0');
+        if (n >= 3) document.getElementById('pwa-prompt').classList.add('show');
+    }
+
+    // Service Worker registration
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(function(){});
+    }
+
     </script>
 </head>
 <body>
@@ -350,6 +479,14 @@
               stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
     </svg>
     <div class="end-text">Good night.</div>
+    <div class="email-collect" id="email-collect">
+        <p>Want to know when we launch new apps?</p>
+        <form id="email-form" onsubmit="return submitEmail(event)">
+            <input type="email" id="email-input" placeholder="your@email.com" required>
+            <button type="submit">Notify me</button>
+        </form>
+        <p class="email-ok" id="email-ok">Thank you! We'll keep you posted.</p>
+    </div>
 </div>
 
 <script>
@@ -370,6 +507,7 @@ const state = {
     isPaused: false, isRunning: false,
     noiseType: 'rain', voiceVolume: 0.8, noiseVolume: 0.4,
     voiceName: 'matthew',
+        paid: localStorage.getItem('paid') === 'true',
     wakeLock: null, countTimer: null, mp3Available: false,
 };
 
@@ -663,6 +801,8 @@ function waitInterval() {
 }
 
 async function startCountdown() {
+        trackUseAndShowAd();
+        maybeShowPWA();
     state.isRunning = true; state.isPaused = false; state.currentLoop = 0;
     await initAudioContext();
     await requestWakeLock();
@@ -722,5 +862,32 @@ function endSession() {
 endScreen.addEventListener('click', () => { showScreen(mainScreen); enterReadyMode(); });
 startBtn.addEventListener('click', () => startCountdown());
 </script>
+
+<!-- Bottom Banner (cross-promo) -->
+<div class="bottom-banner" id="bottom-banner">
+    <span>Try our other apps</span>
+    <a href="https://future2026123.github.io/breathenow/" target="_blank">Breathe Now</a>
+    <span style="opacity:0.3">|</span>
+    <a href="#" onclick="return false;">Snap Out (soon)</a>
+    <button class="close-banner" onclick="document.getElementById('bottom-banner').classList.add('hidden')">&times;</button>
+</div>
+
+<!-- Ad Popup -->
+<div class="ad-popup-overlay" id="ad-popup">
+    <div class="ad-popup">
+        <h3>Enjoying Sleep 100?</h3>
+        <p>Go ad-free for just $1.99</p>
+        <button class="btn-remove" onclick="window.location.href=window._checkoutUrl">Remove Ads &mdash; $1.99 forever</button>
+        <button class="btn-later" onclick="document.getElementById('ad-popup').classList.remove('show')">Not now</button>
+    </div>
+</div>
+
+<!-- PWA Install Prompt -->
+<div class="pwa-prompt" id="pwa-prompt">
+    <p>Add Sleep 100 to your home screen for quick access</p>
+    <button onclick="installPWA()">Add to Home</button>
+    <button class="btn-dismiss" onclick="dismissPWA()">Later</button>
+</div>
+
 </body>
 </html>

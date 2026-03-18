@@ -1,10 +1,11 @@
 {
   "name": "Sleep 100",
   "short_name": "Sleep 100",
-  "start_url": "/",
+  "description": "Count down from 100. Fall asleep before zero.",
+  "start_url": "/sleep100/",
   "display": "standalone",
-  "background_color": "#08080e",
-  "theme_color": "#08080e",
+  "background_color": "#0d0d1a",
+  "theme_color": "#0d0d1a",
   "icons": [
     {
       "src": "icon-192.png",
