@@ -60,16 +60,67 @@
         }
         .screen.active { opacity: 1; visibility: visible; }
 
-        /* ===== READY SCREEN ===== */
-        #ready-screen { gap: 52px; }
+        /* ===== MAIN SCREEN (unified ready + count) ===== */
+        #main-screen { padding-bottom: 220px; }
+        #main-screen.counting { cursor: pointer; }
 
-        .ready-number {
-            font-size: clamp(120px, 22vw, 200px); font-weight: 100;
-            color: var(--text); letter-spacing: -6px; line-height: 1;
-            opacity: 0.9; text-shadow: 0 0 80px rgba(99,102,241,0.08);
+        .main-number {
+            font-size: clamp(140px, 28vw, 240px);
+            font-weight: 100;
+            color: var(--text);
+            letter-spacing: -6px;
+            line-height: 1;
+            transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1);
+            text-shadow: 0 0 100px rgba(99,102,241,0.06);
+            position: relative;
+        }
+        .main-number.fade-out { opacity: 0; transform: translateY(12px) scale(0.98); }
+
+        /* Progress ring */
+        .progress-ring-container {
+            position: absolute; width: 340px; height: 340px; pointer-events: none;
+            opacity: 0; transition: opacity 0.8s ease;
+        }
+        .progress-ring-container.visible { opacity: 1; }
+        .progress-ring { transform: rotate(-90deg); }
+        .progress-ring-bg { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 1; }
+        .progress-ring-fill {
+            fill: none; stroke: url(#progressGradient); stroke-width: 1.5;
+            stroke-linecap: round; transition: stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1);
         }
 
-        .options { display: flex; flex-direction: column; align-items: center; gap: 28px; width: 100%; max-width: 340px; }
+        .paused-indicator {
+            position: absolute; top: 48px;
+            font-size: 11px; font-weight: 300; letter-spacing: 4px;
+            text-transform: uppercase; color: var(--text-secondary);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .paused-indicator.visible { opacity: 1; }
+
+        .breathing-dot {
+            position: absolute; top: 80px;
+            width: 4px; height: 4px; border-radius: 50%;
+            background: var(--accent);
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .breathing-dot.active {
+            opacity: 1;
+            animation: breathe 4s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.3; transform: scale(1); box-shadow: 0 0 8px rgba(99,102,241,0.3); }
+            50% { opacity: 0.8; transform: scale(1.5); box-shadow: 0 0 16px rgba(99,102,241,0.5); }
+        }
+
+        /* ===== READY CONTROLS (bottom panel) ===== */
+        .ready-controls {
+            position: absolute; bottom: 40px;
+            display: flex; flex-direction: column; align-items: center; gap: 28px;
+            width: 100%; max-width: 340px;
+            transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), visibility 0.6s;
+        }
+        .ready-controls.hidden { opacity: 0; visibility: hidden; }
+
         .option-group { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
         .option-label { font-size: 10px; font-weight: 400; text-transform: uppercase; letter-spacing: 3px; color: var(--text-secondary); }
         .option-pills { display: flex; gap: 8px; }
@@ -110,56 +161,21 @@
         .start-btn:hover { border-color: rgba(99,102,241,0.4); box-shadow: 0 0 40px rgba(99,102,241,0.1); transform: translateY(-1px); }
         .start-btn:active { transform: scale(0.97) translateY(0); }
 
-        /* ===== COUNT SCREEN ===== */
-                #count-screen { cursor: pointer; padding-bottom: 290px; }
-
-        .count-number {
-            font-size: clamp(140px, 28vw, 240px); font-weight: 100;
-            color: var(--text); letter-spacing: -6px; line-height: 1;
-            transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1);
-            text-shadow: 0 0 100px rgba(99,102,241,0.06); position: relative;
-        }
-        .count-number.fade-out { opacity: 0; transform: translateY(12px) scale(0.98); }
-
-        /* Progress ring */
-        .progress-ring-container { position: absolute; width: 340px; height: 340px; pointer-events: none; }
-        .progress-ring { transform: rotate(-90deg); }
-        .progress-ring-bg { fill: none; stroke: rgba(255,255,255,0.03); stroke-width: 1; }
-        .progress-ring-fill {
-            fill: none; stroke: url(#progressGradient); stroke-width: 1.5; stroke-linecap: round;
-            transition: stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1);
-        }
-
-        .paused-indicator {
-            position: absolute; top: 48px;
-            font-size: 11px; font-weight: 300; letter-spacing: 4px; text-transform: uppercase;
-            color: var(--text-secondary); opacity: 0; transition: opacity 0.4s ease;
-        }
-        .paused-indicator.visible { opacity: 1; }
-
-        /* Breathing dot indicator */
-        .breathing-dot {
-            position: absolute; top: 80px; width: 4px; height: 4px; border-radius: 50%;
-            background: var(--accent); opacity: 0; transition: opacity 0.4s ease;
-        }
-        .breathing-dot.active { opacity: 1; animation: breathe 4s ease-in-out infinite; }
-
-        @keyframes breathe {
-            0%, 100% { opacity: 0.3; transform: scale(1); box-shadow: 0 0 8px rgba(99,102,241,0.3); }
-            50% { opacity: 0.8; transform: scale(1.5); box-shadow: 0 0 16px rgba(99,102,241,0.5); }
-        }
-
+        /* ===== COUNT CONTROLS (bottom panel) ===== */
         .bottom-controls {
             position: absolute; bottom: 32px;
             display: flex; flex-direction: column; align-items: center; gap: 14px;
             padding: 20px 28px 16px; border-radius: 20px;
             background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.6s cubic-bezier(0.4,0,0.2,1), visibility 0.6s;
         }
+        .bottom-controls.visible { opacity: 1; visibility: visible; }
+
         .control-row { display: flex; align-items: center; gap: 14px; }
         .volume-row { display: flex; align-items: center; gap: 14px; opacity: 0; transition: opacity 0.4s ease; }
         .volume-row.visible { opacity: 1; }
-
         .volume-label, .control-label {
             font-size: 9px; font-weight: 400; color: var(--text-secondary);
             letter-spacing: 2px; text-transform: uppercase; min-width: 44px; text-align: right;
@@ -174,10 +190,7 @@
             transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
         }
         .pill-small:hover { border-color: var(--border-active); color: var(--text); }
-        .pill-small.selected {
-            background: var(--accent-dim); border-color: rgba(99,102,241,0.3);
-            color: var(--text); font-weight: 400;
-        }
+        .pill-small.selected { background: var(--accent-dim); border-color: rgba(99,102,241,0.3); color: var(--text); font-weight: 400; }
 
         /* Custom range slider */
         input[type="range"] {
@@ -198,134 +211,139 @@
 
         /* ===== END SCREEN ===== */
         #end-screen { cursor: pointer; }
-
         .end-text {
-            font-size: clamp(28px, 5vw, 44px); font-weight: 200; letter-spacing: 6px;
-            color: var(--text); opacity: 0;
+            font-size: clamp(28px, 5vw, 44px); font-weight: 200;
+            letter-spacing: 6px; color: var(--text); opacity: 0;
             animation: endFadeIn 2s cubic-bezier(0.4,0,0.2,1) forwards;
             text-shadow: 0 0 60px rgba(167,139,250,0.1);
         }
-
         @keyframes endFadeIn {
             0% { opacity: 0; transform: translateY(24px) scale(0.96); letter-spacing: 12px; }
             100% { opacity: 0.8; transform: translateY(0) scale(1); letter-spacing: 6px; }
         }
-
         .moon-icon {
-            position: absolute; top: calc(50% - 100px); width: 32px; height: 32px;
-            opacity: 0; animation: moonFade 2.5s 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
+            position: absolute; top: calc(50% - 100px); width: 32px; height: 32px; opacity: 0;
+            animation: moonFade 2.5s 0.5s cubic-bezier(0.4,0,0.2,1) forwards;
         }
-
         @keyframes moonFade {
             0% { opacity: 0; transform: translateY(10px); }
             100% { opacity: 0.25; transform: translateY(0); }
         }
 
-        .slogan { position: absolute; bottom: 28px; font-size: 10px; font-weight: 300; letter-spacing: 2px; color: var(--text-tertiary); }
+        .slogan {
+            position: absolute; bottom: 12px;
+            font-size: 10px; font-weight: 300; letter-spacing: 2px; color: var(--text-tertiary);
+            transition: opacity 0.6s ease;
+        }
+        .slogan.hidden { opacity: 0; }
 
         @media (max-height: 700px) {
             .bottom-controls { bottom: 16px; gap: 10px; padding: 14px 20px 12px; }
+            .ready-controls { bottom: 20px; gap: 20px; }
             .progress-ring-container { width: 280px; height: 280px; }
-            #ready-screen { gap: 36px; }
+            #main-screen { padding-bottom: 180px; }
         }
         @media (max-width: 420px) {
-            .ready-number { letter-spacing: -4px; }
-            .count-number { letter-spacing: -4px; }
+            .main-number { letter-spacing: -4px; }
             .bottom-controls { padding: 16px 20px 12px; }
         }
     </style>
     <script>
-    // Belt-and-suspenders: inline SW/cache cleanup for returning users
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(function(regs) {
-        regs.forEach(function(r) { r.unregister(); });
-      });
-      caches.keys().then(function(keys) {
-        keys.forEach(function(k) { caches.delete(k); });
-      });
-    }
+        // Belt-and-suspenders: inline SW/cache cleanup for returning users
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(regs) {
+                regs.forEach(function(r) { r.unregister(); });
+            });
+            caches.keys().then(function(keys) {
+                keys.forEach(function(k) { caches.delete(k); });
+            });
+        }
     </script>
 </head>
 <body>
 
-    <!-- READY SCREEN -->
-    <div id="ready-screen" class="screen active">
-        <div class="ready-number">100</div>
-        <div class="options">
-            <div class="option-group">
-                <div class="option-label">Interval</div>
-                <div class="option-pills" id="interval-pills">
-                    <button class="pill" data-value="3">3s</button>
-                    <button class="pill selected" data-value="5">5s</button>
-                    <button class="pill" data-value="7">7s</button>
-                </div>
-            </div>
-            <div class="option-group">
-                <div class="option-label">Repeat</div>
-                <div class="option-pills" id="loop-pills">
-                    <button class="pill selected" data-value="1">1회</button>
-                    <button class="pill" data-value="3">3회</button>
-                    <button class="pill" data-value="5">5회</button>
-                    <button class="pill" data-value="0">무한</button>
-                </div>
-            </div>
-            <button class="start-btn" id="start-btn">Start</button>
-        </div>
-        <div class="slogan">Count down. Fall asleep.</div>
-    </div>
+<!-- MAIN SCREEN (unified ready + count) -->
+<div id="main-screen" class="screen active">
+    <div class="paused-indicator" id="paused-indicator">Paused</div>
+    <div class="breathing-dot" id="breathing-dot"></div>
 
-    <!-- COUNT SCREEN -->
-    <div id="count-screen" class="screen">
-        <div class="paused-indicator" id="paused-indicator">Paused</div>
-        <div class="breathing-dot" id="breathing-dot"></div>
-        <div class="progress-ring-container">
-            <svg class="progress-ring" width="100%" height="100%" viewBox="0 0 340 340">
-                <defs>
-                    <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6"/>
-                        <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.2"/>
-                    </linearGradient>
-                </defs>
-                <circle class="progress-ring-bg" cx="170" cy="170" r="165"/>
-                <circle class="progress-ring-fill" id="progress-ring" cx="170" cy="170" r="165" stroke-dasharray="1036.73" stroke-dashoffset="0"/>
-            </svg>
-        </div>
-        <div class="count-number" id="count-number">100</div>
-        <div class="bottom-controls">
-            <div class="control-row" id="speed-row">
-                <span class="control-label">Speed</span>
-                <div class="speed-pills" id="speed-pills">
-                    <button class="pill-small" data-value="3">3s</button>
-                    <button class="pill-small selected" data-value="5">5s</button>
-                    <button class="pill-small" data-value="7">7s</button>
-                </div>
-            </div>
-            <div class="control-row">
-                <span class="control-label">Sound</span>
-                <div class="noise-pills" id="noise-pills">
-                    <button class="pill-small selected" data-noise="rain">Rain</button>
-                    <button class="pill-small" data-noise="ocean">Ocean</button>
-                    <button class="pill-small" data-noise="none">None</button>
-                </div>
-            </div>
-            <div class="volume-row visible" id="voice-volume-row">
-                <span class="volume-label">Voice</span>
-                <input type="range" id="voice-volume" min="0" max="100" value="80">
-            </div>
-            <div class="volume-row visible" id="noise-volume-row">
-                <span class="volume-label">Noise</span>
-                <input type="range" id="noise-volume" min="0" max="100" value="40">
-            </div>
-        </div>
-    </div>
-
-    <!-- END SCREEN -->
-    <div id="end-screen" class="screen">
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+    <div class="progress-ring-container" id="progress-ring-wrap">
+        <svg class="progress-ring" width="100%" height="100%" viewBox="0 0 340 340">
+            <defs>
+                <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.2"/>
+                </linearGradient>
+            </defs>
+            <circle class="progress-ring-bg" cx="170" cy="170" r="165"/>
+            <circle class="progress-ring-fill" id="progress-ring" cx="170" cy="170" r="165"
+                    stroke-dasharray="1036.73" stroke-dashoffset="0"/>
         </svg>
-        <div class="end-text">Good night.</div>
     </div>
+
+    <div class="main-number" id="main-number">100</div>
+
+    <!-- Ready controls -->
+    <div class="ready-controls" id="ready-controls">
+        <div class="option-group">
+            <div class="option-label">Interval</div>
+            <div class="option-pills" id="interval-pills">
+                <button class="pill" data-value="3">3s</button>
+                <button class="pill selected" data-value="5">5s</button>
+                <button class="pill" data-value="7">7s</button>
+            </div>
+        </div>
+        <div class="option-group">
+            <div class="option-label">Repeat</div>
+            <div class="option-pills" id="loop-pills">
+                <button class="pill selected" data-value="1">1회</button>
+                <button class="pill" data-value="3">3회</button>
+                <button class="pill" data-value="5">5회</button>
+                <button class="pill" data-value="0">무한</button>
+            </div>
+        </div>
+        <button class="start-btn" id="start-btn">Start</button>
+    </div>
+
+    <!-- Count controls -->
+    <div class="bottom-controls" id="count-controls">
+        <div class="control-row" id="speed-row">
+            <span class="control-label">Speed</span>
+            <div class="speed-pills" id="speed-pills">
+                <button class="pill-small" data-value="3">3s</button>
+                <button class="pill-small selected" data-value="5">5s</button>
+                <button class="pill-small" data-value="7">7s</button>
+            </div>
+        </div>
+        <div class="control-row">
+            <span class="control-label">Sound</span>
+            <div class="noise-pills" id="noise-pills">
+                <button class="pill-small selected" data-noise="rain">Rain</button>
+                <button class="pill-small" data-noise="ocean">Ocean</button>
+                <button class="pill-small" data-noise="none">None</button>
+            </div>
+        </div>
+        <div class="volume-row visible" id="voice-volume-row">
+            <span class="volume-label">Voice</span>
+            <input type="range" id="voice-volume" min="0" max="100" value="80">
+        </div>
+        <div class="volume-row visible" id="noise-volume-row">
+            <span class="volume-label">Noise</span>
+            <input type="range" id="noise-volume" min="0" max="100" value="40">
+        </div>
+    </div>
+
+    <div class="slogan" id="slogan">Count down. Fall asleep.</div>
+</div>
+
+<!-- END SCREEN -->
+<div id="end-screen" class="screen">
+    <svg class="moon-icon" viewBox="0 0 24 24" fill="none">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor"
+              stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+    </svg>
+    <div class="end-text">Good night.</div>
+</div>
 
 <script>
 // ===== NUMBER TO WORDS =====
@@ -342,31 +360,38 @@ function numberToWords(n) {
 
 const state = {
     interval: 5, loops: 1, currentLoop: 0, currentNumber: 100,
-    isPaused: false, isRunning: false, noiseType: 'rain',
-    voiceVolume: 0.8, noiseVolume: 0.4, wakeLock: null, countTimer: null, mp3Available: false,
+    isPaused: false, isRunning: false,
+    noiseType: 'rain', voiceVolume: 0.8, noiseVolume: 0.4,
+    wakeLock: null, countTimer: null, mp3Available: false,
 };
 
 let dropletInterval = null;
 
-const readyScreen = document.getElementById('ready-screen');
-const countScreen = document.getElementById('count-screen');
+const mainScreen = document.getElementById('main-screen');
 const endScreen = document.getElementById('end-screen');
-const countNumber = document.getElementById('count-number');
+const mainNumber = document.getElementById('main-number');
 const pausedIndicator = document.getElementById('paused-indicator');
 const breathingDot = document.getElementById('breathing-dot');
 const progressRing = document.getElementById('progress-ring');
+const progressRingWrap = document.getElementById('progress-ring-wrap');
 const startBtn = document.getElementById('start-btn');
+const readyControls = document.getElementById('ready-controls');
+const countControls = document.getElementById('count-controls');
+const sloganEl = document.getElementById('slogan');
 const voiceVolumeSlider = document.getElementById('voice-volume');
 const noiseVolumeSlider = document.getElementById('noise-volume');
 
 const RING_CIRCUMFERENCE = 2 * Math.PI * 165;
+
 function updateProgress(n) {
     const pct = (100 - n) / 100;
     progressRing.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - pct);
 }
 
+// ===== SPEECH =====
 let speechSynth = window.speechSynthesis;
 let selectedVoice = null;
+
 function initSpeechVoices() {
     const voices = speechSynth.getVoices();
     const preferred = ['Samantha','Karen','Victoria','Fiona','Google UK English Female','Microsoft Zira'];
@@ -392,8 +417,10 @@ function speakNumber(n) {
     });
 }
 
+// ===== MP3 VOICE =====
 const audioCache = {};
 let voiceAudio = null;
+
 function checkMp3Available() {
     return new Promise((resolve) => {
         const test = new Audio('audio/100.mp3');
@@ -402,21 +429,29 @@ function checkMp3Available() {
         setTimeout(() => resolve(false), 2000);
     });
 }
+
 function preloadRange(from, to) {
     for (let i = from; i >= to && i >= 0; i--) {
         if (!audioCache[i]) { const a = new Audio('audio/' + i + '.mp3'); a.preload = 'auto'; audioCache[i] = a; }
     }
 }
+
 function playMp3(n) {
     return new Promise((resolve) => {
         const audio = audioCache[n] || new Audio('audio/' + n + '.mp3');
         voiceAudio = audio; audio.currentTime = 0; audio.volume = state.voiceVolume;
-        audio.play().catch(() => {}); audio.onended = resolve; audio.onerror = resolve;
+        audio.play().catch(() => {});
+        audio.onended = resolve; audio.onerror = resolve;
         setTimeout(resolve, 4000);
     });
 }
-async function playVoice(n) { if (state.mp3Available) await playMp3(n); else await speakNumber(n); }
 
+async function playVoice(n) {
+    if (state.mp3Available) await playMp3(n);
+    else await speakNumber(n);
+}
+
+// ===== AUDIO CONTEXT & NOISE =====
 let audioContext = null;
 let noiseNodes = [];
 let noiseGainNode = null;
@@ -427,26 +462,23 @@ async function initAudioContext() {
 }
 
 function createWhiteNoiseBuffer(seconds) {
-    const sr = audioContext.sampleRate; const len = sr * seconds;
+    const sr = audioContext.sampleRate, len = sr * seconds;
     const buf = audioContext.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) { const data = buf.getChannelData(ch); for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1; }
     return buf;
 }
 
 function createPinkNoiseBuffer(seconds) {
-    const sr = audioContext.sampleRate; const len = sr * seconds;
+    const sr = audioContext.sampleRate, len = sr * seconds;
     const buf = audioContext.createBuffer(2, len, sr);
     for (let ch = 0; ch < 2; ch++) {
         const data = buf.getChannelData(ch);
         let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
         for (let i = 0; i < len; i++) {
             const white = Math.random() * 2 - 1;
-            b0 = 0.99886*b0 + white*0.0555179;
-            b1 = 0.99332*b1 + white*0.0750759;
-            b2 = 0.96900*b2 + white*0.1538520;
-            b3 = 0.86650*b3 + white*0.3104856;
-            b4 = 0.55000*b4 + white*0.5329522;
-            b5 = -0.7616*b5 - white*0.0168980;
+            b0 = 0.99886*b0 + white*0.0555179; b1 = 0.99332*b1 + white*0.0750759;
+            b2 = 0.96900*b2 + white*0.1538520; b3 = 0.86650*b3 + white*0.3104856;
+            b4 = 0.55000*b4 + white*0.5329522; b5 = -0.7616*b5 - white*0.0168980;
             data[i] = (b0+b1+b2+b3+b4+b5+b6+white*0.5362)*0.11;
             b6 = white*0.115926;
         }
@@ -461,10 +493,8 @@ function startRain() {
     noiseGainNode = master;
 
     const pinkBuf = createPinkNoiseBuffer(4);
-    const pinkSrc = audioContext.createBufferSource();
-    pinkSrc.buffer = pinkBuf; pinkSrc.loop = true;
-    const pinkLP = audioContext.createBiquadFilter();
-    pinkLP.type = 'lowpass'; pinkLP.frequency.value = 2500; pinkLP.Q.value = 0.5;
+    const pinkSrc = audioContext.createBufferSource(); pinkSrc.buffer = pinkBuf; pinkSrc.loop = true;
+    const pinkLP = audioContext.createBiquadFilter(); pinkLP.type = 'lowpass'; pinkLP.frequency.value = 2500; pinkLP.Q.value = 0.5;
     const pinkGain = audioContext.createGain(); pinkGain.gain.value = 0.15;
     pinkSrc.connect(pinkLP); pinkLP.connect(pinkGain); pinkGain.connect(master);
     pinkSrc.start(0);
@@ -472,28 +502,19 @@ function startRain() {
 
     function createDroplet() {
         if (!audioContext || audioContext.state === 'closed') return;
-        const now = audioContext.currentTime;
-        const duration = 0.03;
+        const now = audioContext.currentTime, duration = 0.03;
         const bufLen = Math.ceil(audioContext.sampleRate * duration);
         const dropBuf = audioContext.createBuffer(1, bufLen, audioContext.sampleRate);
         const data = dropBuf.getChannelData(0);
-        for (let i = 0; i < bufLen; i++) {
-            const env = Math.exp(-i / (bufLen * 0.2));
-            data[i] = (Math.random() * 2 - 1) * env;
-        }
+        for (let i = 0; i < bufLen; i++) { const env = Math.exp(-i / (bufLen * 0.2)); data[i] = (Math.random() * 2 - 1) * env; }
         const src = audioContext.createBufferSource(); src.buffer = dropBuf;
-        const bp = audioContext.createBiquadFilter();
-        bp.type = 'bandpass'; bp.frequency.value = 2000 + Math.random() * 6000;
-        bp.Q.value = 1.5 + Math.random() * 2;
-        const pan = audioContext.createStereoPanner();
-        pan.pan.value = Math.random() * 2 - 1;
-        const dropGain = audioContext.createGain();
-        dropGain.gain.value = 0.02 + Math.random() * 0.06;
+        const bp = audioContext.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 2000 + Math.random() * 6000; bp.Q.value = 1.5 + Math.random() * 2;
+        const pan = audioContext.createStereoPanner(); pan.pan.value = Math.random() * 2 - 1;
+        const dropGain = audioContext.createGain(); dropGain.gain.value = 0.02 + Math.random() * 0.06;
         src.connect(bp); bp.connect(pan); pan.connect(dropGain); dropGain.connect(master);
         src.start(now); src.stop(now + duration + 0.05);
         src.onended = () => { try { src.disconnect(); bp.disconnect(); pan.disconnect(); dropGain.disconnect(); } catch(e) {} };
     }
-
     dropletInterval = setInterval(() => {
         const dropsThisBatch = 2 + Math.floor(Math.random() * 4);
         for (let i = 0; i < dropsThisBatch; i++) setTimeout(createDroplet, Math.random() * 80);
@@ -503,16 +524,20 @@ function startRain() {
 function startOcean() {
     const gain = audioContext.createGain(); gain.gain.value = state.noiseVolume;
     gain.connect(audioContext.destination); noiseGainNode = gain;
+
     const baseBuf = createWhiteNoiseBuffer(5);
     const baseSrc = audioContext.createBufferSource(); baseSrc.buffer = baseBuf; baseSrc.loop = true;
     const baseLP = audioContext.createBiquadFilter(); baseLP.type = 'lowpass'; baseLP.frequency.value = 600; baseLP.Q.value = 0.3;
     baseSrc.connect(baseLP); noiseNodes.push(baseSrc, baseLP);
+
     const lfo = audioContext.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.08;
     const lfoGain = audioContext.createGain(); lfoGain.gain.value = 0.3;
     lfo.connect(lfoGain); noiseNodes.push(lfo, lfoGain);
+
     const waveGain = audioContext.createGain(); waveGain.gain.value = 0.6;
     lfoGain.connect(waveGain.gain); baseLP.connect(waveGain); waveGain.connect(gain);
     lfo.start(0); baseSrc.start(0); noiseNodes.push(waveGain);
+
     const foamBuf = createWhiteNoiseBuffer(3);
     const foamSrc = audioContext.createBufferSource(); foamSrc.buffer = foamBuf; foamSrc.loop = true;
     const foamBP = audioContext.createBiquadFilter(); foamBP.type = 'bandpass'; foamBP.frequency.value = 2000; foamBP.Q.value = 0.5;
@@ -534,79 +559,153 @@ function stopNoise() {
     if (noiseGainNode) { try { noiseGainNode.disconnect(); } catch(e) {} noiseGainNode = null; }
 }
 
-async function requestWakeLock() { try { if ('wakeLock' in navigator && document.visibilityState === 'visible') state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {} }
+// ===== WAKE LOCK =====
+async function requestWakeLock() {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible') state.wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+}
 function releaseWakeLock() { if (state.wakeLock) { state.wakeLock.release(); state.wakeLock = null; } }
 document.addEventListener('visibilitychange', async () => { if (document.visibilityState === 'visible' && state.isRunning) await requestWakeLock(); });
 
-function showScreen(screen) { [readyScreen, countScreen, endScreen].forEach(s => s.classList.remove('active')); screen.classList.add('active'); }
+// ===== SCREEN & MODE SWITCHING =====
+function showScreen(screen) {
+    [mainScreen, endScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+}
 
+function enterCountMode() {
+    mainScreen.classList.add('counting');
+    readyControls.classList.add('hidden');
+    countControls.classList.add('visible');
+    progressRingWrap.classList.add('visible');
+    sloganEl.classList.add('hidden');
+}
+
+function enterReadyMode() {
+    mainScreen.classList.remove('counting');
+    readyControls.classList.remove('hidden');
+    countControls.classList.remove('visible');
+    progressRingWrap.classList.remove('visible');
+    sloganEl.classList.remove('hidden');
+    pausedIndicator.classList.remove('visible');
+    breathingDot.classList.remove('active');
+    mainNumber.textContent = '100';
+    mainNumber.classList.remove('fade-out');
+    updateProgress(100);
+}
+
+// ===== PILL SETUP =====
 function setupPills(id, cb, noise) {
-    const c = document.getElementById(id); if (!c) return;
+    const c = document.getElementById(id);
+    if (!c) return;
     c.querySelectorAll('.pill, .pill-small').forEach(p => {
-        p.addEventListener('click', (e) => { e.stopPropagation(); c.querySelectorAll('.pill, .pill-small').forEach(x => x.classList.remove('selected')); p.classList.add('selected'); cb(noise ? p.dataset.noise : p.dataset.value); });
+        p.addEventListener('click', (e) => {
+            e.stopPropagation();
+            c.querySelectorAll('.pill, .pill-small').forEach(x => x.classList.remove('selected'));
+            p.classList.add('selected');
+            cb(noise ? p.dataset.noise : p.dataset.value);
+        });
     });
 }
+
 function syncSpeedPills(v) { document.querySelectorAll('#speed-pills .pill-small').forEach(p => p.classList.toggle('selected', p.dataset.value === v)); }
 function syncIntervalPills(v) { document.querySelectorAll('#interval-pills .pill').forEach(p => p.classList.toggle('selected', p.dataset.value === v)); }
 
 setupPills('interval-pills', v => { state.interval = parseInt(v); syncSpeedPills(v); });
 setupPills('loop-pills', v => { state.loops = parseInt(v); });
 setupPills('speed-pills', v => { state.interval = parseInt(v); syncIntervalPills(v); });
-setupPills('noise-pills', async v => { state.noiseType = v; if (state.isRunning) { if (v === 'none') stopNoise(); else { await initAudioContext(); startNoise(v); } } document.getElementById('noise-volume-row').classList.toggle('visible', v !== 'none'); }, true);
+setupPills('noise-pills', async v => {
+    state.noiseType = v;
+    if (state.isRunning) { if (v === 'none') stopNoise(); else { await initAudioContext(); startNoise(v); } }
+    document.getElementById('noise-volume-row').classList.toggle('visible', v !== 'none');
+}, true);
 
 voiceVolumeSlider.addEventListener('input', e => { e.stopPropagation(); state.voiceVolume = e.target.value / 100; });
 noiseVolumeSlider.addEventListener('input', e => { e.stopPropagation(); state.noiseVolume = e.target.value / 100; if (noiseGainNode) noiseGainNode.gain.value = state.noiseVolume; });
-document.querySelectorAll('.bottom-controls, .bottom-controls *').forEach(el => { el.addEventListener('click', e => e.stopPropagation()); });
 
-function animateNumber(num) { countNumber.classList.add('fade-out'); setTimeout(() => { countNumber.textContent = num; countNumber.classList.remove('fade-out'); }, 220); }
+// Stop click propagation on controls
+document.querySelectorAll('.bottom-controls, .bottom-controls *, .ready-controls, .ready-controls *').forEach(el => {
+    el.addEventListener('click', e => e.stopPropagation());
+});
+
+// ===== COUNTDOWN =====
+function animateNumber(num) {
+    mainNumber.classList.add('fade-out');
+    setTimeout(() => { mainNumber.textContent = num; mainNumber.classList.remove('fade-out'); }, 220);
+}
 
 function waitInterval() {
     return new Promise(resolve => {
         let elapsed = 0; const tick = 100;
-        function step() { if (!state.isRunning) { resolve(); return; } if (state.isPaused) { state.countTimer = setTimeout(step, tick); return; } elapsed += tick; if (elapsed >= state.interval * 1000) resolve(); else state.countTimer = setTimeout(step, tick); }
+        function step() {
+            if (!state.isRunning) { resolve(); return; }
+            if (state.isPaused) { state.countTimer = setTimeout(step, tick); return; }
+            elapsed += tick;
+            if (elapsed >= state.interval * 1000) resolve();
+            else state.countTimer = setTimeout(step, tick);
+        }
         state.countTimer = setTimeout(step, tick);
     });
 }
 
 async function startCountdown() {
     state.isRunning = true; state.isPaused = false; state.currentLoop = 0;
-    await initAudioContext(); await requestWakeLock();
+    await initAudioContext();
+    await requestWakeLock();
     state.mp3Available = await checkMp3Available();
     if (state.mp3Available) preloadRange(100, 80);
     if (state.noiseType !== 'none') startNoise(state.noiseType);
-    breathingDot.classList.add('active'); updateProgress(100); showScreen(countScreen); runLoop();
+    breathingDot.classList.add('active');
+    updateProgress(100);
+    enterCountMode();
+    runLoop();
 }
 
 async function runLoop() {
     for (let n = 100; n >= 0; n--) {
         if (!state.isRunning) return;
-        state.currentNumber = n; animateNumber(n); updateProgress(n);
+        state.currentNumber = n;
+        animateNumber(n);
+        updateProgress(n);
         if (state.mp3Available && n > 0) preloadRange(n - 1, Math.max(0, n - 10));
-        await playVoice(n); if (!state.isRunning) return;
-        await waitInterval(); if (!state.isRunning) return;
+        await playVoice(n);
+        if (!state.isRunning) return;
+        await waitInterval();
+        if (!state.isRunning) return;
     }
     state.currentLoop++;
-    if (state.loops === 0 || state.currentLoop < state.loops) runLoop(); else endSession();
+    if (state.loops === 0 || state.currentLoop < state.loops) runLoop();
+    else endSession();
 }
 
-countScreen.addEventListener('click', () => {
+// ===== PAUSE (click on main screen during count) =====
+mainScreen.addEventListener('click', () => {
     if (!state.isRunning) return;
     state.isPaused = !state.isPaused;
     pausedIndicator.classList.toggle('visible', state.isPaused);
     breathingDot.classList.toggle('active', !state.isPaused);
-    if (state.isPaused) { speechSynth.pause(); if (voiceAudio) voiceAudio.pause(); if (noiseGainNode) noiseGainNode.gain.linearRampToValueAtTime(state.noiseVolume * 0.3, audioContext.currentTime + 0.5); }
-    else { speechSynth.resume(); if (voiceAudio) voiceAudio.play().catch(() => {}); if (noiseGainNode) noiseGainNode.gain.linearRampToValueAtTime(state.noiseVolume, audioContext.currentTime + 0.5); }
+    if (state.isPaused) {
+        speechSynth.pause();
+        if (voiceAudio) voiceAudio.pause();
+        if (noiseGainNode) noiseGainNode.gain.linearRampToValueAtTime(state.noiseVolume * 0.3, audioContext.currentTime + 0.5);
+    } else {
+        speechSynth.resume();
+        if (voiceAudio) voiceAudio.play().catch(() => {});
+        if (noiseGainNode) noiseGainNode.gain.linearRampToValueAtTime(state.noiseVolume, audioContext.currentTime + 0.5);
+    }
 });
 
+// ===== END SESSION =====
 function endSession() {
-    state.isRunning = false; clearTimeout(state.countTimer); speechSynth.cancel();
-    stopNoise(); releaseWakeLock(); breathingDot.classList.remove('active');
-    showScreen(endScreen); setTimeout(() => { if (!state.isRunning) showScreen(readyScreen); }, 10000);
+    state.isRunning = false;
+    clearTimeout(state.countTimer);
+    speechSynth.cancel(); stopNoise(); releaseWakeLock();
+    breathingDot.classList.remove('active');
+    showScreen(endScreen);
+    setTimeout(() => { if (!state.isRunning) { showScreen(mainScreen); enterReadyMode(); } }, 10000);
 }
 
-endScreen.addEventListener('click', () => showScreen(readyScreen));
+endScreen.addEventListener('click', () => { showScreen(mainScreen); enterReadyMode(); });
 startBtn.addEventListener('click', () => startCountdown());
 </script>
-
 </body>
 </html>
