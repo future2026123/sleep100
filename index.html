@@ -294,6 +294,13 @@
             </div>
         </div>
         <div class="option-group">
+            <div class="option-label">Voice</div>
+            <div class="option-pills" id="voice-pills">
+                <button class="pill selected" data-value="matthew">Matthew</button>
+                <button class="pill" data-value="joanna">Joanna</button>
+            </div>
+        </div>
+        <div class="option-group">
             <div class="option-label">Repeat</div>
             <div class="option-pills" id="loop-pills">
                 <button class="pill selected" data-value="1">1회</button>
@@ -362,6 +369,7 @@ const state = {
     interval: 5, loops: 1, currentLoop: 0, currentNumber: 100,
     isPaused: false, isRunning: false,
     noiseType: 'rain', voiceVolume: 0.8, noiseVolume: 0.4,
+    voiceName: 'matthew',
     wakeLock: null, countTimer: null, mp3Available: false,
 };
 
@@ -421,9 +429,13 @@ function speakNumber(n) {
 const audioCache = {};
 let voiceAudio = null;
 
+function voicePath(n) {
+    return 'audio/' + state.voiceName + '/' + n + '.mp3';
+}
+
 function checkMp3Available() {
     return new Promise((resolve) => {
-        const test = new Audio('audio/100.mp3');
+        const test = new Audio(voicePath(100));
         test.oncanplaythrough = () => resolve(true);
         test.onerror = () => resolve(false);
         setTimeout(() => resolve(false), 2000);
@@ -432,13 +444,15 @@ function checkMp3Available() {
 
 function preloadRange(from, to) {
     for (let i = from; i >= to && i >= 0; i--) {
-        if (!audioCache[i]) { const a = new Audio('audio/' + i + '.mp3'); a.preload = 'auto'; audioCache[i] = a; }
+        const key = state.voiceName + '_' + i;
+        if (!audioCache[key]) { const a = new Audio(voicePath(i)); a.preload = 'auto'; audioCache[key] = a; }
     }
 }
 
 function playMp3(n) {
     return new Promise((resolve) => {
-        const audio = audioCache[n] || new Audio('audio/' + n + '.mp3');
+        const key = state.voiceName + '_' + n;
+        const audio = audioCache[key] || new Audio(voicePath(n));
         voiceAudio = audio; audio.currentTime = 0; audio.volume = state.voiceVolume;
         audio.play().catch(() => {});
         audio.onended = resolve; audio.onerror = resolve;
@@ -611,6 +625,7 @@ function syncSpeedPills(v) { document.querySelectorAll('#speed-pills .pill-small
 function syncIntervalPills(v) { document.querySelectorAll('#interval-pills .pill').forEach(p => p.classList.toggle('selected', p.dataset.value === v)); }
 
 setupPills('interval-pills', v => { state.interval = parseInt(v); syncSpeedPills(v); });
+setupPills('voice-pills', v => { state.voiceName = v; });
 setupPills('loop-pills', v => { state.loops = parseInt(v); });
 setupPills('speed-pills', v => { state.interval = parseInt(v); syncIntervalPills(v); });
 setupPills('noise-pills', async v => {
