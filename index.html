@@ -1,4 +1,4 @@
-"<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -363,15 +363,15 @@
                 <p class="count-subtext">Breathe in for 4, hold for 4, out for 4</p>
             </div>
             <div class="bottom-controls">
-                <button class="control-btn" id="pause-btn" title="Pause">⏸</button>
-                <button class="control-btn" id="stop-btn" title="Stop">⊘</button>
+                <button class="control-btn" id="pause-btn" title="Pause">â¸</button>
+                <button class="control-btn" id="stop-btn" title="Stop">â</button>
             </div>
         </div>
 
         <!-- END SCREEN -->
         <div class="screen end-screen" id="end-screen">
             <div>
-                <div class="end-icon">✓</div>
+                <div class="end-icon">â</div>
                 <h2 class="end-text">Good night</h2>
                 <p class="end-subtext">You've completed 100 breaths</p>
             </div>
@@ -389,8 +389,8 @@
     <!-- BOTTOM BANNER (cross-promo) -->
     <div class="bottom-banner" id="bottom-banner">
         <span class="bottom-banner-text">Try our new app</span>
-        <span class="bottom-banner-app">Breathe Now →</span>
-        <button class="bottom-banner-close" id="banner-close">×</button>
+        <span class="bottom-banner-app">Breathe Now â</span>
+        <button class="bottom-banner-close" id="banner-close">Ã</button>
     </div>
 
     <!-- PAYMENT POPUP -->
@@ -398,7 +398,7 @@
         <div class="popup-card">
             <div class="popup-title">Enjoying Sleep 100?</div>
             <div class="popup-desc">Go ad-free for $1.99</div>
-            <a class="popup-btn-primary" id="payment-btn" href="#" target="_blank">Remove Ads — $1.99 forever</a>
+            <a class="popup-btn-primary" id="payment-btn" href="#" target="_blank">Remove Ads â $1.99 forever</a>
             <button class="popup-btn-secondary" id="popup-dismiss">Not now</button>
         </div>
     </div>
@@ -407,7 +407,7 @@
     <div class="install-banner" id="install-banner">
         <span class="install-banner-text">Add to home screen</span>
         <button class="install-banner-btn" id="install-btn">Install</button>
-        <button class="install-banner-close" id="install-close">×</button>
+        <button class="install-banner-close" id="install-close">Ã</button>
     </div>
 
     <script>
@@ -465,14 +465,14 @@
 
         function pauseCountdown() {
             isPaused = !isPaused;
-            pauseBtn.textContent = isPaused ? '▶' : '⏸';
+            pauseBtn.textContent = isPaused ? 'â¶' : 'â¸';
         }
 
         function stopCountdown() {
             isRunning = false;
             clearTimeout(timerId);
             showScreen(homeScreen);
-            pauseBtn.textContent = '⏸';
+            pauseBtn.textContent = 'â¸';
         }
 
         function endCountdown() {
@@ -608,4 +608,3 @@
     </script>
 </body>
 </html>
-"
